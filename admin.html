@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>枫蓝店 · 经营数据后台 2.0</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#0d1117; color:#e6edf3; padding-bottom:80px; }
+  header { background:linear-gradient(135deg,#12213a,#0d1117); padding:20px 16px; border-bottom:1px solid #21262d; }
+  header h1 { font-size:20px; color:#58a6ff; }
+  header p { font-size:12px; color:#8b949e; margin-top:4px; }
+  nav { display:flex; overflow-x:auto; background:#161b22; border-bottom:1px solid #21262d; position:sticky; top:0; z-index:10; }
+  nav button { flex-shrink:0; padding:12px 18px; background:none; border:none; color:#8b949e; font-size:14px; border-bottom:2px solid transparent; cursor:pointer; }
+  nav button.on { color:#58a6ff; border-bottom-color:#58a6ff; }
+  .page { display:none; padding:16px; }
+  .page.on { display:block; }
+  .card { background:#161b22; border:1px solid #21262d; border-radius:10px; padding:14px; margin-bottom:14px; }
+  .card h2 { font-size:15px; color:#58a6ff; margin-bottom:10px; }
+  .kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .kpi { background:#0d1117; border-radius:8px; padding:10px; }
+  .kpi b { display:block; font-size:18px; color:#fff; margin-top:2px; }
+  .kpi span { font-size:11px; color:#8b949e; }
+  .up { color:#3fb950 !important; } .down { color:#f85149 !important; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th,td { border-bottom:1px solid #21262d; padding:6px 4px; text-align:left; }
+  th { color:#8b949e; font-weight:500; }
+  td[contenteditable="true"]:focus { outline:2px solid #58a6ff; background:#0d1117; }
+  input,select,textarea { width:100%; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#e6edf3; padding:8px; font-size:14px; margin:3px 0 8px; }
+  .btn { display:inline-block; background:#1f6feb; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:14px; cursor:pointer; margin:4px 4px 4px 0; }
+  .btn.gray { background:#30363d; }
+  .btn.red { background:#b62324; }
+  .drop { border:2px dashed #30363d; border-radius:10px; padding:24px 12px; text-align:center; color:#8b949e; font-size:13px; }
+  .drop.hot { border-color:#58a6ff; color:#58a6ff; }
+  .diag { padding:10px; border-radius:8px; background:#0d1117; margin-bottom:8px; font-size:13px; line-height:1.6; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .g { background:#12261e; color:#3fb950; } .r { background:#2d1517; color:#f85149; } .y { background:#2a2214; color:#d29922; }
+  .muted { color:#8b949e; font-size:12px; line-height:1.6; }
+  .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#1f6feb; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; display:none; z-index:99; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>枫蓝店 · 经营数据后台 2.0</h1>
+  <p>Excel导入 · 手动补录 · 同期自动匹配 · 经营诊断 · 天气预测（本地版，数据保存在本浏览器）</p>
+</header>
+
+<nav>
+  <button class="on" data-p="p1">总览</button>
+  <button data-p="p2">Excel导入</button>
+  <button data-p="p3">每日数据</button>
+  <button data-p="p4">商品分析</button>
+  <button data-p="p5">预测模型</button>
+  <button data-p="p6">设置/备份</button>
+</nav>
+
+<!-- 总览 -->
+<div class="page on" id="p1">
+  <div class="card"><h2>经营总览（本月 vs 上月同期）</h2>
+    <div class="kpis">
+      <div class="kpi"><span>本月营业额</span><b id="k_rev">¥0</b></div>
+      <div class="kpi"><span>上月同期</span><b id="k_prev">¥0</b></div>
+      <div class="kpi"><span>同期差额</span><b id="k_diff">¥0</b></div>
+      <div class="kpi"><span>本月客流/订单</span><b id="k_traffic">0</b></div>
+      <div class="kpi"><span>当前客单价</span><b id="k_atv">¥0</b></div>
+      <div class="kpi"><span>毛利率</span><b id="k_margin">—</b></div>
+    </div>
+  </div>
+  <div class="card"><h2>自动经营诊断 <span class="tag y">数据变化自动刷新</span></h2><div id="diag"></div></div>
+  <div class="card"><h2>目标压力测试</h2>
+    <div class="kpis">
+      <div class="kpi"><span>距离目标</span><b id="t_gap">¥0</b></div>
+      <div class="kpi"><span>剩余天数</span><b id="t_days">0</b></div>
+      <div class="kpi"><span>每日需要</span><b id="t_need">¥0</b></div>
+      <div class="kpi"><span>基准预测月底</span><b id="t_base">¥0</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- Excel导入 -->
+<div class="page" id="p2">
+  <div class="card">
+    <h2>Excel 一键导入</h2>
+    <div class="drop" id="drop">📥 把销售报表文件点这里选择<br><small>.xlsx / .xls / .csv · 自动识别：日期/营业额/客流/毛利/毛利率/商品</small></div>
+    <input type="file" id="file" accept=".xlsx,.xls,.csv" style="display:none">
+    <p class="muted" style="margin-top:10px">不同公司报表字段名不同，系统按关键词自动识别；识别不全可到"每日数据"补录。导入不会删除已有数据。</p>
+    <button class="btn gray" id="demoBtn">没有报表？填入示例数据演示</button>
+  </div>
+  <div class="card"><h2>导入日志</h2><div id="log" class="muted">等待导入…</div></div>
+</div>
+
+<!-- 每日数据 -->
+<div class="page" id="p3">
+  <div class="card">
+    <h2>＋ 录入一条</h2>
+    <label>日期</label><input type="date" id="i_date">
+    <label>营业额</label><input type="number" id="i_rev" placeholder="0">
+    <label>客流/订单</label><input type="number" id="i_tra" placeholder="0">
+    <label>毛利</label><input type="number" id="i_gp" placeholder="0">
+    <label>天气</label>
+    <select id="i_wx"><option value="">请选择</option><option>晴</option><option>多云</option><option>阴</option><option>雨</option><option>暴雨</option></select>
+    <button class="btn" id="addBtn">数据入库 · 刷新分析</button>
+  </div>
+  <div class="card"><h2>明细（点表格可直接修改）</h2>
+    <div style="overflow-x:auto"><table id="tbl"><thead><tr>
+      <th>日期</th><th>营业额</th><th>客流</th><th>毛利</th><th>毛利率%</th><th>天气</th><th>上月同期</th><th>上月客流</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+    <p class="muted">"上月同期"列留空时，系统按日期自动匹配上月同日数据。</p>
+  </div>
+</div>
+
+<!-- 商品分析 -->
+<div class="page" id="p4">
+  <div class="card"><h2>商品自动分析</h2>
+    <div style="overflow-x:auto"><table id="ptbl"><thead><tr>
+      <th>商品</th><th>上月</th><th>本月</th><th>变化</th><th>状态</th><th>建议</th>
+    </tr></thead><tbody></tbody></table></div>
+    <button class="btn gray" id="addProd">＋增加商品</button>
+  </div>
+</div>
+
+<!-- 预测 -->
+<div class="page" id="p5">
+  <div class="card"><h2>未来7天预测模型</h2>
+    <p class="muted">模型以最近8个有效销售日为基础，周末与天气作为修正因子（雨天约-25%，晴天约+5%）。节假日可在设置中备注。</p>
+    <div class="kpis" style="margin-top:10px">
+      <div class="kpi"><span>7日预测</span><b id="f_7">¥0</b></div>
+      <div class="kpi"><span>月底基准</span><b id="f_base">¥0</b></div>
+      <div class="kpi"><span>保守</span><b id="f_low">¥0</b></div>
+      <div class="kpi"><span>冲刺</span><b id="f_high">¥0</b></div>
+    </div>
+    <button class="btn" id="wxBtn">实时刷新天气重新计算</button>
+    <div id="wxInfo" class="muted" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- 设置 -->
+<div class="page" id="p6">
+  <div class="card"><h2>设置</h2>
+    <label>门店店长署名</label><input id="s_name" placeholder="枫蓝店长">
+    <label>月底目标（元）</label><input type="number" id="s_target" placeholder="190000">
+    <label>天气城市</label><input id="s_city" placeholder="如：长沙">
+    <label>节假日备注</label><textarea id="s_holiday" rows="2" placeholder="如：8/30 中秋调休"></textarea>
+    <button class="btn" id="saveBtn">保存设置</button>
+  </div>
+  <div class="card"><h2>备份 / 恢复</h2>
+    <button class="btn" id="expBtn">导出数据(JSON)</button>
+    <button class="btn gray" id="impBtn">导入备份</button>
+    <button class="btn red" id="clrBtn">清空本机数据</button>
+    <input type="file" id="bakFile" accept=".json" style="display:none">
+    <p class="muted" style="margin-top:8px">本地版：数据存于当前浏览器，换设备不同步，请定期导出备份。天气查询联网但不上传经营数据。<br><b>版权声明：</b>此数据系统为枫蓝店长独家开发，未经授权严禁转载、复制、改编、商用。</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 兼容性核心：全部用原生 ES5 风格事件，手机 Safari / 微信内置浏览器均可运行 ===== */
+var $ = function(id){ return document.getElementById(id); };
+var KEY = 'fenlan_admin_v2';
+function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block'; setTimeout(function(){t.style.display='none';},2000); }
+function fmt(n){ n=Number(n)||0; return '¥'+n.toFixed(n%1?2:0).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+/* ---- Tab 切换（click 在手机上可靠触发，无需 touch 特殊处理） ---- */
+var tabs = document.querySelectorAll('nav button');
+for(var i=0;i<tabs.length;i++){
+  tabs[i].onclick = function(){
+    for(var j=0;j<tabs.length;j++){ tabs[j].className=''; document.getElementById(tabs[j].getAttribute('data-p')).className='page'; }
+    this.className='on'; document.getElementById(this.getAttribute('data-p')).className='page on';
+  };
+}
+
+/* ---- 数据模型 ---- */
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {days:[],prods:[],set:{}}; }catch(e){ return {days:[],prods:[],set:{}}; } }
+function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+var D = load();
+
+/* ---- 上月同期自动匹配 ---- */
+function prevMonthSameDay(dateStr){
+  var d = new Date(dateStr); if(isNaN(d)) return null;
+  d.setMonth(d.getMonth()-1);
+  var y=d.getFullYear(), m=('0'+(d.getMonth()+1)).slice(-2), da=('0'+d.getDate()).slice(-2);
+  var key=y+'-'+m+'-'+da;
+  for(var i=0;i<D.days.length;i++){ if(D.days[i].date===key) return D.days[i]; }
+  return null;
+}
+
+/* ---- 渲染明细表 ---- */
+function renderTable(){
+  var tb = $('tbl').getElementsByTagName('tbody')[0];
+  tb.innerHTML='';
+  D.days.sort(function(a,b){ return a.date<b.date?-1:1; });
+  for(var i=0;i<D.days.length;i++){
+    (function(row){
+      var tr=document.createElement('tr');
+      var pm = prevMonthSameDay(row.date);
+      var rate = row.rev? ((row.gp/row.rev*100).toFixed(1)) : '';
+      var cells = [row.date, row.rev||0, row.tra||0, row.gp||0, rate, row.wx||'', (pm?pm.rev:''), (pm?pm.tra:'')];
+      for(var c=0;c<cells.length;c++){
+        var td=document.createElement('td'); td.textContent=cells[c];
+        if(c>0&&c<5){ td.contentEditable='true'; td.setAttribute('data-f',['rev','tra','gp'][c-1]||'rate');
+          td.onblur=function(){
+            var v=this.textContent.replace(/[^0-9.\-]/g,'');
+            if(['rev','tra','gp'].indexOf(this.getAttribute('data-f'))>=0) row[this.getAttribute('data-f')]=Number(v)||0;
+            save(D); refreshAll();
+          };
+        }
+        tr.appendChild(td);
+      }
+      var del=document.createElement('td'); var b=document.createElement('button'); b.className='btn red'; b.style.padding='2px 8px'; b.textContent='删';
+      b.onclick=function(){ if(confirm('删除 '+row.date+' ?')){ D.days.splice(D.days.indexOf(row),1); save(D); refreshAll(); } };
+      del.appendChild(b); tr.appendChild(del);
+      tb.appendChild(tr);
+    })(D.days[i]);
+  }
+}
+
+/* ---- 渲染商品表 ---- */
+function renderProds(){
+  var tb=$('ptbl').getElementsByTagName('tbody')[0]; tb.innerHTML='';
+  for(var i=0;i<D.prods.length;i++){
+    (function(p){
+      var tr=document.createElement('tr');
+      var chg = p.prev? ((p.cur-p.prev)/p.prev*100).toFixed(1)+'%' : '新增';
+      var st = typeof chg==='string'&&chg==='新增' ? ['y','新品'] : (p.cur>=p.prev?['g','上升']:['r','下滑']);
+      var sug = st[1]==='上升'?'继续强化主推':'检查陈列/价格/试吃';
+      var vals=[p.name,p.prev||0,p.cur||0,chg];
+      for(var c=0;c<4;c++){ var td=document.createElement('td'); td.textContent=vals[c]; if(c>0){ td.contentEditable='true'; td.onblur=function(){ var v=Number(this.textContent.replace(/[^0-9.\-]/g,''))||0; if(c===1)p.prev=v; if(c===2)p.cur=v; if(c===3){} save(D); renderProds(); refreshAll(); }; } tr.appendChild(td); }
+      var td1=document.createElement('td'); td1.innerHTML='<span class="tag '+st[0]+'">'+st[1]+'</span>';
+      var td2=document.createElement('td'); td2.textContent=sug;
+      tr.appendChild(td1); tr.appendChild(td2); tb.appendChild(tr);
+    })(D.prods[i]);
+  }
+}
+
+/* ---- 分析汇总 ---- */
+function analyze(){
+  var rev=0,prev=0,tra=0,prevTra=0,gp=0;
+  for(var i=0;i<D.days.length;i++){
+    var d=D.days[i]; rev+=Number(d.rev)||0; tra+=Number(d.tra)||0; gp+=Number(d.gp)||0;
+    var pm=prevMonthSameDay(d.date);
+    if(pm){ prev+=Number(pm.rev)||0; prevTra+=Number(pm.tra)||0; }
+  }
+  return {rev:rev,prev:prev,tra:tra,prevTra:prevTra,gp:gp,
+    atv:tra?rev/tra:0, margin:rev?gp/rev*100:0,
+    days:D.days.length};
+}
+
+/* ---- 诊断 ---- */
+function renderDiag(a){
+  var out=[], diff=a.rev-a.prev;
+  out.push('<div class="diag">📊 <b>营业额：</b>本月 '+fmt(a.rev)+'，上月同期 '+fmt(a.prev)+'，差额 <b class="'+(diff>=0?'up':'down')+'">'+(diff>=0?'+':'')+fmt(diff)+'</b>（'+(a.prev?((diff/a.prev*100).toFixed(2)):'0')+'%）</div>');
+  if(a.prevTra>0){
+    var td=a.tra-a.prevTra, per=td/Math.max(1,a.days);
+    out.push('<div class="diag">🚶 <b>客流：</b>本月 '+a.tra+' 单，同期 '+a.prevTra+'，' + (td<0? '<b class="down">少 '+(-td)+' 单，日均少 '+Math.abs(per).toFixed(1)+' 单——客流是第一问题</b>' : '<b class="up">多 '+td+' 单</b>') + '</div>');
+  }
+  out.push('<div class="diag">💰 <b>毛利：</b>客单价 '+fmt(a.atv)+'，毛利率 '+a.margin.toFixed(2)+'%'+(a.margin<48?'（<span class="tag r">轻度承压</span>）':'（<span class="tag g">健康</span>）')+'</div>');
+  var rain=0; for(var i=0;i<D.days.length;i++){ if(D.days[i].wx&&D.days[i].wx.indexOf('雨')>=0) rain++; }
+  if(rain>0) out.push('<div class="diag">🌧 <b>天气：</b>本月有 '+rain+' 个雨天，雨天对销售有明显放大作用，注意雨天备货与线上引流。</div>');
+  $('diag').innerHTML=out.join('');
+}
+
+/* ---- 压力测试 & 预测 ---- */
+function forecast(){
+  var target=Number(D.set.target)||190000;
+  var a=analyze();
+  var now=new Date();
+  var y=now.getFullYear(), m=now.getMonth();
+  var monthEnd=new Date(y,m+1,0).getDate();
+  var remain=Math.max(0, monthEnd-now.getDate());
+  var avg = a.days? a.rev/a.days : 0;
+  var base = a.rev + avg*remain;
+  var weekendUp=1.05, rainDown=0.75;
+  var high = a.rev + avg*remain*weekendUp;
+  var low = a.rev + avg*remain*rainDown;
+  var gap = target - base;
+  $('k_rev').textContent=fmt(a.rev);
+  $('k_prev').textContent=fmt(a.prev);
+  var d=a.rev-a.prev; $('k_diff').textContent=(d>=0?'+':'')+fmt(d); $('k_diff').className=d>=0?'up':'down';
+  $('k_traffic').textContent=a.tra;
+  $('k_atv').textContent=fmt(a.atv);
+  $('k_margin').textContent=a.days? a.margin.toFixed(2)+'%':'—';
+  $('t_gap').textContent=fmt(Math.max(0,gap));
+  $('t_days').textContent=remain;
+  $('t_need').textContent=remain? fmt(Math.max(0,target-a.rev)/remain):'—';
+  $('t_base').textContent=fmt(base);
+  $('f_7').textContent=fmt(avg*7);
+  $('f_base').textContent=fmt(base);
+  $('f_low').textContent=fmt(low);
+  $('f_high').textContent=fmt(high);
+  $('wxInfo').textContent='剩余'+remain+'天 · 日均基准 '+fmt(avg)+' · 周末+5% / 雨天-25%修正'+(D.set.holiday?' · 节假日备注：'+D.set.holiday:'');
+}
+function refreshAll(){ renderTable(); renderProds(); renderDiag(analyze()); forecast(); }
+
+/* ---- 录入 ---- */
+$('addBtn').onclick=function(){
+  var date=$('i_date').value; if(!date){ toast('请选择日期'); return; }
+  for(var i=0;i<D.days.length;i++){ if(D.days[i].date===date){ D.days[i]={date:date,rev:Number($('i_rev').value)||0,tra:Number($('i_tra').value)||0,gp:Number($('i_gp').value)||0,wx:$('i_wx').value}; save(D); refreshAll(); toast('已更新 '+date); return; } }
+  D.days.push({date:date,rev:Number($('i_rev').value)||0,tra:Number($('i_tra').value)||0,gp:Number($('i_gp').value)||0,wx:$('i_wx').value});
+  save(D); refreshAll(); toast('已入库并刷新分析');
+};
+
+/* ---- Excel 导入：CSV 原生解析；xlsx 动态加载 SheetJS，失败则提示转 CSV ---- */
+function parseCSV(text){
+  var lines=text.replace(/\r/g,'').split('\n'), head=lines[0].split(',');
+  function find(kw){ for(var i=0;i<head.length;i++){ if(head[i].indexOf(kw)>=0) return i; } return -1; }
+  var cD=find('日期'),cR=find('营业额')>=0?find('营业额'):find('销售额'),cT=find('客流')>=0?find('客流'):find('订单'),cG=find('毛利')>=0?find('毛利'):find('利润'),cW=find('天气');
+  var n=0;
+  for(var i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    var c=lines[i].split(',');
+    var date=c[cD]&&c[cD].trim(); if(!date) continue;
+    date=date.replace(/\//g,'-');
+    var row={date:date,rev:parseFloat(c[cR])||0,tra:parseFloat(c[cT])||0,gp:parseFloat(c[cG])||0,wx:cW>=0?(c[cW]||'').trim():''};
+    var ex=false; for(var j=0;j<D.days.length;j++){ if(D.days[j].date===date){ D.days[j]=row; ex=true; } }
+    if(!ex) D.days.push(row); n++;
+  }
+  return n;
+}
+function handleFile(f){
+  $('log').textContent='正在解析 '+f.name+' …';
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var n;
+      if(/\.csv$/i.test(f.name)){ n=parseCSV(rd.target.result); }
+      else{
+        if(typeof XLSX==='undefined'){ $('log').innerHTML='解析 .xlsx 需要联网加载解析库，加载失败。<b>解决办法：在电脑上把 Excel 另存为 CSV 再导入</b>，或用下方手动补录。'; return; }
+        var wb=XLSX.read(rd.target.result,{type:'array'}); var ws=wb.Sheets[wb.SheetNames[0]];
+        var csv=XLSX.utils.sheet_to_csv(ws); n=parseCSV(csv);
+      }
+      save(D); refreshAll();
+      $('log').innerHTML='✅ 导入成功，共处理 <b>'+n+'</b> 条记录（已合并去重）。';
+      toast('导入成功 '+n+' 条');
+    }catch(e){ $('log').textContent='解析失败：'+e.message+'。建议在电脑上另存为 CSV 格式重试。'; }
+  };
+  if(/\.csv$/i.test(f.name)) rd.readAsText(f,'UTF-8'); else rd.readAsArrayBuffer(f);
+}
+var drop=$('drop');
+drop.onclick=function(){ $('file').click(); };
+$('file').onchange=function(){ if(this.files[0]) handleFile(this.files[0]); };
+/* 桌面拖拽（手机自动忽略） */
+drop.ondragover=function(e){ e.preventDefault(); this.className='drop hot'; };
+drop.ondragleave=function(){ this.className='drop'; };
+drop.ondrop=function(e){ e.preventDefault(); this.className='drop'; if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); };
+
+/* ---- 示例数据 ---- */
+$('demoBtn').onclick=function(){
+  var today=new Date(), y=today.getFullYear(), m=today.getMonth();
+  for(var d=1; d<=Math.min(10,today.getDate()); d++){
+    var wd=new Date(y,m,d).getDay(), wk=(wd===0||wd===6);
+    var rev=wk?5600+Math.round(Math.random()*800):4800+Math.round(Math.random()*600);
+    D.days.push({date:y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2),rev:rev,tra:Math.round(rev/55),gp:Math.round(rev*0.48),wx:Math.random()<0.3?'雨':'晴'});
+  }
+  D.prods=[{name:'猪肉脯',prev:8200,cur:9530},{name:'腰果',prev:6100,cur:6480},{name:'红薯条',prev:5400,cur:5620}];
+  save(D); refreshAll(); toast('示例数据已填入');
+};
+
+/* ---- 商品 ---- */
+$('addProd').onclick=function(){ var n=prompt('商品名称'); if(n){ D.prods.push({name:n,prev:0,cur:0}); save(D); renderProds(); } };
+
+/* ---- 天气（联网，可选） ---- */
+$('wxBtn').onclick=function(){
+  var city=D.set.city||'';
+  if(!city){ toast('请先到设置里填写天气城市'); return; }
+  $('wxInfo').textContent='正在获取 '+city+' 天气…';
+  fetch('https://wttr.in/'+encodeURIComponent(city)+'?format=j1')
+    .then(function(r){return r.json();})
+    .then(function(j){
+      var d=j.weather&&j.weather[0]; if(!d) throw 0;
+      var wx=d.hourly[4].weatherDesc[0].value.indexOf('rain')>=0?'雨':'晴';
+      $('wxInfo').textContent='今日 '+city+'：'+d.hourly[4].weatherDesc[0].value+'，系统按 "'+wx+'" 系数重新校准预测（雨天-25% / 晴天+5%）。';
+      forecast(); toast('天气已刷新');
+    })
+    .catch(function(){ $('wxInfo').textContent='天气获取失败（网络受限），已按本地数据计算。'; });
+};
+
+/* ---- 设置 & 备份 ---- */
+function fillSet(){ $('s_name').value=D.set.name||''; $('s_target').value=D.set.target||''; $('s_city').value=D.set.city||''; $('s_holiday').value=D.set.holiday||''; }
+$('saveBtn').onclick=function(){ D.set={name:$('s_name').value,target:Number($('s_target').value)||0,city:$('s_city').value,holiday:$('s_holiday').value}; save(D); forecast(); toast('设置已保存'); };
+$('expBtn').onclick=function(){
+  var b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='fenlan-backup.json'; a.click(); toast('备份已导出');
+};
+$('impBtn').onclick=function(){ $('bakFile').click(); };
+$('bakFile').onchange=function(){
+  var rd=new FileReader();
+  rd.onload=function(){ try{ D=JSON.parse(rd.target.result); save(D); fillSet(); refreshAll(); toast('备份已恢复'); }catch(e){ toast('文件无效'); } };
+  rd.readAsText(this.files[0]);
+};
+$('clrBtn').onclick=function(){ if(confirm('确定清空本机全部数据？建议先导出备份！')){ localStorage.removeItem(KEY); D={days:[],prods:[],set:{}}; fillSet(); refreshAll(); toast('已清空'); } };
+
+/* ---- 启动 ---- */
+fillSet();
+if(!$('i_date').value){ var n=new Date(); $('i_date').value=n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2); }
+refreshAll();
+</script>
+</body>
+</html>
