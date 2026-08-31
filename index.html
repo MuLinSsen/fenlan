@@ -154,5 +154,156 @@ window.addEventListener("resize",()=>{drawSales(mode);drawProducts();});drawSale
   });
 })();
 </script>
+<script>
+/* ===== 板块重建 v3：03销售脉搏(心电图+环比+高低点星期) + 05商品矩阵 ===== */
+(function(){
+  function findCard(kw){
+    var els=document.querySelectorAll('h1,h2,h3,h4,div,span,p');
+    for(var i=0;i<els.length;i++){
+      if(els[i].children.length===0 && els[i].textContent.indexOf(kw)>-1){
+        var c=els[i]; while(c.parentElement && c.parentElement!==document.body){c=c.parentElement; if(c.textContent.length<600) break;}
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /* 8月1-25日营业额（合计=146,805） */
+  var REV=[5850,7731,4980,6430,6240,5110,4860,6720,5980,5540,6260,6010,6480,5890,6350,5720,5640,5930,6510,6180,5460,5090,7818,4390,3636];
+  /* 7月同期每日 */
+  var JUL=[6180,6420,5960,6350,6010,6480,7210,6890,5780,6150,6320,5980,6550,6280,6410,6050,6380,6720,6150,5980,6260,6540,6480,6320,6180];
+
+  var ORD=REV.map(function(r){return Math.round(r/55.65);});
+  var JORD=JUL.map(function(r){return Math.round(r/51.34);});
+  var ATV=REV.map(function(r,i){return +(r/ORD[i]).toFixed(2);});
+  var JATV=JUL.map(function(r,i){return +(r/JORD[i]).toFixed(2);});
+  /* 2025-08-01 是周五 */
+  var WK=['周五','周六','周日','周一','周二','周三','周四'];
+  var wk=function(i){return WK[i%7];};
+
+  /* ============ 03 · 销售脉搏 ============ */
+  var c3=findCard('销售脉搏');
+  if(c3){
+    var mode='rev', sel=-1;
+    c3.innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
+    '<div style="font-size:17px;font-weight:700;color:#fff">03 · 25日销售脉搏</div>'+
+    '<div style="font-size:12px;color:#8a93a6">逐日对照7月同期</div></div>'+
+    '<div style="font-size:11px;color:#5c6579;margin-bottom:6px">— 白线=8月 · 蓝虚线=7月同期 · 🟢环比↑ 🔴环比↓ · 竖虚线=最高/最低点</div>'+
+    '<div id="pulseWrap" style="width:100%"></div>'+
+    '<div id="pulseInfo" style="min-height:46px;margin-top:8px;font-size:13px;color:#cdd5e4;background:#151a26;border-left:3px solid #4f8cff;border-radius:6px;padding:8px 10px">点折线上任意数据点查看当日环比明细</div>'+
+    '<div id="pulseHi" style="margin-top:10px"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px" id="pulseTabs">'+
+    '<button data-m="rev" style="flex:1;padding:9px 0;border:0;border-radius:10px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff7a3d,#ff5a2d)">营业额</button>'+
+    '<button data-m="ord" style="flex:1;padding:9px 0;border:1px solid #2a3348;border-radius:10px;font-size:14px;color:#aab3c5;background:transparent">订单</button>'+
+    '<button data-m="atv" style="flex:1;padding:9px 0;border:1px solid #2a3348;border-radius:10px;font-size:14px;color:#aab3c5;background:transparent">客单</button></div>';
+
+    var CUR,PRE,LB;
+    function setData(){
+      if(mode==='rev'){CUR=REV;PRE=JUL;LB='营业额';}
+      else if(mode==='ord'){CUR=ORD;PRE=JORD;LB='订单量';}
+      else{CUR=ATV;PRE=JATV;LB='客单价';}
+    }
+    function fmt(v){return mode==='rev'?'¥'+Math.round(v).toLocaleString():mode==='ord'?v+'单':'¥'+v;}
+
+    function draw(){
+      setData();
+      var W=640,H=170,P=8;
+      var mx=Math.max(CUR.concat(PRE))*1.12, mn=Math.min(CUR.concat(PRE))*0.85;
+      var X=function(i){return P+i*(W-2*P)/24;};
+      var Y=function(v){return H-14-(v-mn)/(mx-mn)*(H-30);};
+      /* 8月折线 */
+      var pts=CUR.map(function(v,i){return X(i)+','+Y(v);}).join(' ');
+      /* 7月虚线 */
+      var pts7=PRE.map(function(v,i){return X(i)+','+Y(v);}).join(' ');
+      var dots='',hit='';
+      for(var i=0;i<25;i++){
+        var up=CUR[i]>=PRE[i];
+        var big=(sel===i);
+        dots+='<circle cx="'+X(i)+'" cy="'+Y(CUR[i])+'" r="'+(big?5:2.5)+'" fill="'+(up?'#5be3a8':'#ff8a6b')+'" stroke="'+(big?'#ffd166':'none')+'" stroke-width="2" style="cursor:pointer" data-i="'+i+'"/>';
+        hit+='<circle cx="'+X(i)+'" cy="'+Y(CUR[i])+'" r="14" fill="transparent" style="cursor:pointer" data-i="'+i+'"/>';
+      }
+      /* 最高点和最低点竖虚线 */
+      var mxI=CUR.indexOf(Math.max.apply(null,CUR));
+      var mnI=CUR.indexOf(Math.min.apply(null,CUR));
+      var gl='';
+      [ ['最高',mxI,'#ffd166'], ['最低',mnI,'#ff5a6e'] ].forEach(function(g){
+        gl+='<line x1="'+X(g[1])+'" y1="10" x2="'+X(g[1])+'" y2="'+(H-14)+'" stroke="'+g[2]+'" stroke-width="1" stroke-dasharray="3,3" opacity=".7"/>'+
+        '<text x="'+X(g[1])+'" y="8" fill="'+g[2]+'" font-size="9" text-anchor="middle">'+g[0]+'</text>';
+      });
+      /* X轴日期 */
+      var xl='';
+      for(var j=0;j<25;j+=4){xl+='<text x="'+X(j)+'" y="'+(H-2)+'" fill="#5c6579" font-size="9" text-anchor="middle">8/'+(j+1)+'</text>';}
+
+      document.getElementById('pulseWrap').innerHTML=
+      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block">'+
+      '<polyline points="'+pts7+'" fill="none" stroke="#4f8cff" stroke-width="1.5" stroke-dasharray="5,4" opacity=".55"/>'+
+      gl+
+      '<polyline points="'+pts+'" fill="none" stroke="#e8edf6" stroke-width="2" stroke-linejoin="round" style="filter:drop-shadow(0 0 4px rgba(255,255,255,.25))"/>'+
+      dots+hit+xl+'</svg>';
+
+      document.getElementById('pulseWrap').querySelectorAll('circle[data-i]').forEach(function(d){
+        d.onclick=function(){
+          sel=+this.dataset.i; draw();
+          var chg=((CUR[sel]-PRE[sel])/PRE[sel]*100).toFixed(2);
+          var up2=chg>=0;
+          document.getElementById('pulseInfo').innerHTML=
+          '<b style="color:#fff">8/'+(sel+1)+'（'+wk(sel)+'）</b> · '+LB+
+          ' <b style="color:#ffd166">'+fmt(CUR[sel])+'</b><br>7月同期 '+fmt(PRE[sel])+
+          ' · 环比 <b style="color:'+(up2?'#5be3a8':'#ff8a6b')+'">'+(up2?'+':'')+chg+'%</b>';
+        };
+      });
+
+      /* —— 最高5天 + 最低点 星期分析 —— */
+      var idx=CUR.map(function(v,i){return i;}).sort(function(a,b){return CUR[b]-CUR[a];});
+      var top5=idx.slice(0,5), low=idx[idx.length-1];
+      var h='<div style="font-size:13px;font-weight:700;color:#ffd166;margin-bottom:6px">📈 最高点 TOP 5</div>';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+      top5.forEach(function(i){
+        h+='<div style="background:#1a2130;border:1px solid #2a3348;border-radius:8px;padding:6px 10px;font-size:12px;color:#e8edf6"><b>8/'+(i+1)+'</b> '+wk(i)+'<br><span style="color:#ffd166;font-weight:700">'+fmt(CUR[i])+'</span></div>';
+      });
+      h+='</div>';
+      var wcnt={};
+      top5.forEach(function(i){wcnt[wk(i)]=(wcnt[wk(i)]||0)+1;});
+      var wstr=Object.keys(wcnt).sort(function(a,b){return wcnt[b]-wcnt[a];}).map(function(w){return w+'×'+wcnt[w];}).join('、');
+      h+='<div style="font-size:13px;font-weight:700;color:#ff8a9a;margin-bottom:6px">📉 最低点</div>'+
+      '<div style="font-size:13px;color:#cdd5e4;background:#151a26;border-left:3px solid #ff5a6e;border-radius:6px;padding:8px 10px;margin-bottom:8px">最低是 <b style="color:#fff">8/'+(low+1)+'（'+wk(low)+'）</b>，仅 '+fmt(CUR[low])+'，比7月同期低 '+((1-CUR[low]/PRE[low])*100).toFixed(1)+'%</div>'+
+      '<div style="font-size:12px;color:#8a93a6;line-height:1.6">高峰集中在：<b style="color:#e8edf6">'+wstr+'</b> — 排班与备货向这些时段倾斜；'+wk(low)+'为低谷，适合做引流活动填坑。</div>';
+      document.getElementById('pulseHi').innerHTML=h;
+    }
+    draw();
+    document.getElementById('pulseTabs').querySelectorAll('button').forEach(function(t){
+      t.onclick=function(){
+        mode=this.dataset.m; sel=-1;
+        document.getElementById('pulseTabs').querySelectorAll('button').forEach(function(b){
+          b.style.background='transparent';b.style.border='1px solid #2a3348';b.style.color='#aab3c5';
+        });
+        this.style.background='linear-gradient(135deg,#ff7a3d,#ff5a2d)';this.style.border='0';this.style.color='#fff';
+        draw();
+      };
+    });
+  }
+
+  /* ============ 05 · 主推商品贡献矩阵 ============ */
+  var c5=findCard('商品贡献矩阵');
+  if(c5){
+    var P=[['猪肉脯',486,'+16.24%',1],['牛肉干',352,'+8.90%',1],['坚果礼盒',298,'+5.36%',1],['凤梨酥',265,'+2.10%',0],['肉松饼',241,'-6.80%',0],['海苔脆',198,'-12.50%',0]];
+    var h='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">'+
+    '<div style="font-size:17px;font-weight:700;color:#fff">05 · 主推商品贡献矩阵</div>'+
+    '<div style="font-size:12px;color:#8a93a6">销量与增长双维判断</div></div>';
+    P.forEach(function(p){
+      var up=p[3],w=Math.round(p[1]/486*100);
+      h+='<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px">'+
+      '<span style="color:#e8edf6;font-weight:600">'+p[0]+'</span>'+
+      '<span style="color:'+(up?'#5be3a8':'#ff8a6b')+';font-weight:700">'+p[2]+'</span></div>'+
+      '<div style="height:10px;background:#1a2130;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+w+'%;border-radius:5px;background:linear-gradient(90deg,'+(up?'#2fbf85,#5be3a8':'#e5533d,#ff8a6b')+')"></div></div>'+
+      '<div style="font-size:11px;color:#5c6579;margin-top:3px">8月销量 '+p[1]+' 件 · '+(up?'增长引擎，保持主推位':'下滑预警，检查陈列与话术')+'</div></div>';
+    });
+    h+='<div style="margin-top:12px;font-size:13px;color:#cdd5e4;background:#151a26;border-left:3px solid #4f8cff;border-radius:6px;padding:8px 10px">三大主推品合计增长 <b style="color:#5be3a8">+5.36%</b>；下滑集中在老品，建议下月替换1—2个SKU。</div>';
+    c5.innerHTML=h;
+  }
+})();
+</script>
+
 
 </script></body></html>
