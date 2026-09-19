@@ -1,80 +1,394 @@
-
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>薛记炒货提货卡 - 原型</title>
-<style>
-  *{box-sizing:border-box}
-  body{background:#f0f0f0;font-family:"Microsoft YaHei",sans-serif;display:flex;gap:40px;justify-content:center;padding:30px 8px;flex-wrap:wrap}
-  .card{width:min(540px,94vw);aspect-ratio:540/320;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);position:relative;overflow:hidden}
-  /* ---------- 正面 ---------- */
-  .front{background:#c8102e;color:#fff;display:flex}
-  .front .left{flex:1.2;padding:6% 2% 4% 5%}
-  .front .logo{width:12%;aspect-ratio:64/88;background:#fff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-    display:flex;align-items:center;justify-content:center;font-size:min(34px,6vw);font-weight:bold;color:#c8102e;margin-bottom:4%}
-  .front h1{font-size:min(30px,5.5vw);margin:3% 0;letter-spacing:2px}
-  .front .shop{font-size:min(16px,3vw);letter-spacing:1px;border-top:1px solid rgba(255,255,255,.5);
-    padding-top:3%;display:inline-block}
-  .front .right{flex:1;background:rgba(255,255,255,.12);display:flex;flex-direction:column;justify-content:center;align-items:center}
-  .front .seal{width:46%;aspect-ratio:1;border:3px dashed #ffe000;border-radius:50%;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;transform:rotate(-12deg)}
-  .front .seal .amt{font-size:min(50px,9vw);font-weight:bold;color:#ffe000;line-height:1}
-  .front .seal .unit{font-size:min(18px,3.5vw);color:#fff;margin-top:4px}
-  .front .no{position:absolute;bottom:3%;right:3%;font-size:min(12px,2.5vw);opacity:.85}
-  /* ---------- 背面（红底白字） ---------- */
-  .back{background:#c8102e;color:#fff;padding:5% 6%}
-  .back h2{font-size:min(20px,4.2vw);border-left:5px solid #ffe000;padding-left:8px;margin:0 0 4%;letter-spacing:1px}
-  .back .shop{font-size:min(13px,2.8vw);opacity:.95;margin-bottom:3%;color:#fff}
-  .back li{font-size:min(13px,2.8vw);line-height:1.9;list-style:none;padding-left:4px}
-  .back li b{color:#ffe000}
-  .back .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:3%}
-  .back .stamp{width:20%;aspect-ratio:1;border:2px solid #fff;border-radius:50%;color:#fff;
-    display:flex;align-items:center;justify-content:center;font-size:min(15px,3vw);font-weight:bold;transform:rotate(-15deg);opacity:.9}
-  .back .no{font-size:min(15px,3.2vw);color:#ffe000;font-weight:bold}
-  .back .stamp-box{display:flex;justify-content:center;flex:1}
-  .label{display:block;text-align:center;margin-top:10px;font-size:14px;color:#555}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薛记炒货提货卡 - 印刷版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+ 
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+ 
+        /* 印刷说明 */
+        .print-info {
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+ 
+        .print-info strong {
+            display: block;
+            margin-top: 8px;
+            color: #333;
+        }
+ 
+        /* 卡片容器 */
+        .card-container {
+            width: 354px;
+            height: 212px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+        }
+ 
+        .page-label {
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+ 
+        /* ===== 正面样式 ===== */
+        .card-front {
+            background: linear-gradient(135deg, #c41e3a 0%, #d63852 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+ 
+        .card-front::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+ 
+        .front-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            z-index: 1;
+            max-width: 55%;
+        }
+ 
+        .logo-area {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #c41e3a;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+ 
+        .logo-area::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 20px;
+            background: #c41e3a;
+            border-radius: 0 50% 50% 0;
+            top: -6px;
+            right: -4px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+ 
+        .logo-area::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 20px;
+            background: #c41e3a;
+            border-radius: 50% 0 0 50%;
+            bottom: -4px;
+            left: -4px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+ 
+        .front-title {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+ 
+        .front-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+ 
+        .front-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+ 
+        .amount-circle {
+            width: 100px;
+            height: 100px;
+            border: 3px dashed #ffd500;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+ 
+        .amount-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffd500;
+            line-height: 1;
+        }
+ 
+        .amount-unit {
+            font-size: 16px;
+            color: #ffd500;
+            margin-top: 4px;
+        }
+ 
+        .store-name-front {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            font-size: 9px;
+            opacity: 0.85;
+            z-index: 1;
+            line-height: 1.3;
+        }
+ 
+        .card-number-front {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+ 
+        /* ===== 背面样式 ===== */
+        .card-back {
+            background: linear-gradient(135deg, #c41e3a 0%, #d63852 100%);
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+ 
+        .card-back::before {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+ 
+        .back-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .back-header::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background-color: #ffd500;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+ 
+        .back-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+ 
+        .back-contact {
+            font-size: 11px;
+            margin-bottom: 10px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .back-contact strong {
+            color: #ffd500;
+        }
+ 
+        .terms {
+            font-size: 9px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .terms div {
+            margin-bottom: 4px;
+        }
+ 
+        .term-number {
+            color: #ffd500;
+            font-weight: 700;
+            display: inline-block;
+            min-width: 16px;
+        }
+ 
+        .stamp-area {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            width: 54px;
+            height: 54px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.05);
+        }
+ 
+        .stamp-text {
+            line-height: 1.4;
+            color: white;
+        }
+ 
+        .seal-mark {
+            display: none;
+        }
+ 
+        .card-number-back {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffd500;
+            z-index: 1;
+            display: none;
+        }
+ 
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+ 
+            .print-info {
+                display: none;
+            }
+ 
+            .card-container {
+                box-shadow: none;
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+ 
+            .page-label {
+                display: none;
+            }
+        }
+ 
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .card-container {
+                transform: scale(0.9);
+                transform-origin: top center;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- 正面 -->
-<div>
-  <div class="card front">
-    <div class="left">
-      <div class="logo">薛</div>
-      <h1>薛记炒货提货卡</h1>
-      <div class="shop">薛记炒货枫蓝国际店</div>
+    
+ 
+    <!-- 正面 -->
+    <div class="card-container">
+        <div class="card-front">
+            <div class="front-left">
+                <div class="logo-area">薛</div>
+                <div class="front-title">薛记炒货<br>提货卡</div>
+                <div class="front-subtitle">薛记炒货</div>
+            </div>
+            <div class="front-right">
+                <div class="amount-circle">
+                    <div class="amount-value">100</div>
+                    <div class="amount-unit">元</div>
+                </div>
+            </div>
+            <div class="store-name-front">薛记炒货<br>枫蓝国际店</div>
+            <div class="card-number-front">No:001</div>
+        </div>
+        <div style="text-align: center; padding: 8px; background: #f9f9f9; font-size: 12px; color: #999;">正面</div>
     </div>
-    <div class="right">
-      <div class="seal">
-        <div class="amt">100</div>
-        <div class="unit">元</div>
-      </div>
+ 
+    <!-- 背面 -->
+    <div class="card-container">
+        <div class="card-back">
+            <div class="back-header">
+                <div class="back-title">薛记炒货枫蓝国际店提货卡</div>
+            </div>
+            
+            <div class="back-contact">
+                沟通方式：<strong>13782227358</strong>
+            </div>
+ 
+            <div class="terms">
+                <div><span class="term-number">1、</span>此卡券只限<strong>薛记炒货</strong>使用（其他店铺无效）</div>
+                <div><span class="term-number">2、</span>面值 <strong>100 元</strong>：一次性消费，不设找赎</div>
+                <div><span class="term-number">3、</span>解释权归薛记炒货枫蓝国际店为准</div>
+                <div><span class="term-number">4、</span>有效期 2026年9月** 至 2026年****</div>
+                <div><span class="term-number">5、</span>盖有门店章有效</div>
+            </div>
+ 
+            <div class="stamp-area">
+                <div class="stamp-text">门店章</div>
+            </div>
+            <div class="card-number-back">No:001</div>
+        </div>
+        <div style="text-align: center; padding: 8px; background: #f9f9f9; font-size: 12px; color: #999;">背面</div>
     </div>
-    <div class="no">№001</div>h
-  </div>
-  <span class="label">正面</span>
-</div>
-<!-- 背面 -->
-<div>
-  <div class="card back">
-    <h2>薛记炒货枫蓝国际店提货单</h2>
-    <div class="shop">沟通方式：13782273586</div>
-    <ul>
-      <li>1、此卡券只限<b>枫蓝国际店</b>使用（其他店面无效）</li>
-      <li>2、面值 <b>100 元</b>：一次性消费，不设找零 </li>
-      <li>3、解释权归薛记炒货枫蓝国际店为准</li>
-      <li>4、有效期 2026年9月** 至 2026年****</li>
-      <li>5、盖有人名章有效</li>
-    </ul>
-    <div class="row">
-      <span style="font-size:min(15px,3.2vw);font-weight:bold">盖章有效</span>
-      <div class="stamp-box"><div class="stamp">人名章</div></div>
-      <span class="no">№001</span>
-    </div>
-  </div>
-  <span class="label">背面</span>
-</div>
+ 
 </body>
 </html>
