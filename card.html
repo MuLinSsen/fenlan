@@ -1,0 +1,99 @@
+好的！我先帮您梳理一下「圆」和「元」的问题，然后给您做一个可直接在浏览器打开的名片/提货卡原型（HTML），金额已改为 100。
+关于「圆」和「元」
+您的原稿里存在不一致：
+• 绿色色块上写的是「300圆」
+• 说明文字里写的是「面值300元」
+两种写法其实都对，但用途有区别：
+写法	适用场景
+元	日常书写、通用、简洁 ✔ 推荐用在卡片上
+圆	正式财务/票据场合（如「壹佰圆整」），人民币纸币上也印「圆」
+建议：卡片上统一用「元」更清晰易懂；如果要显得正式，可以写「面值 100 元（壹佰圆整）」。
+提货卡原型（保存为 .html 用浏览器打开即可预览）
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>薛记炒货提货卡 - 原型</title>
+<style>
+  body{background:#f0f0f0;font-family:"Microsoft YaHei",sans-serif;display:flex;gap:40px;justify-content:center;padding:50px;flex-wrap:wrap}
+  .card{width:540px;height:320px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);position:relative;overflow:hidden}
+  /* ---------- 正面 ---------- */
+  .front{background:#c8102e;color:#fff;display:flex}
+  .front .left{flex:1.2;padding:30px 20px 20px 30px}
+  .front .logo{width:64px;height:88px;background:#fff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+    display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:bold;color:#c8102e;margin-bottom:14px}
+  .front h1{font-size:30px;margin:6px 0 4px;letter-spacing:2px}
+  .front .slogan{font-size:13px;opacity:.9;margin-bottom:18px}
+  .front .slogan b{color:#ffe000}
+  .front .qr{display:flex;gap:10px;margin-top:20px}
+  .front .qr div{width:54px;height:54px;background:#fff;border:3px solid #fff;position:relative}
+  .front .qr span{font-size:9px;display:block;text-align:center;margin-top:2px}
+  .front .right{flex:1;background:rgba(255,255,255,.12);display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .front .seal{width:120px;height:120px;border:3px dashed #ffe000;border-radius:50%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;transform:rotate(-12deg)}
+  .front .seal .amt{font-size:44px;font-weight:bold;color:#ffe000}
+  .front .seal .unit{font-size:16px;color:#fff}
+  .front .no{position:absolute;bottom:10px;right:14px;font-size:12px;opacity:.85}
+  /* ---------- 背面 ---------- */
+  .back{background:#fff;color:#222;padding:26px 34px}
+  .back h2{font-size:20px;border-left:6px solid #c8102e;padding-left:10px;margin:0 0 14px}
+  .back .shop{font-size:13px;color:#666;margin-bottom:12px}
+  .back li{font-size:13px;line-height:1.9;list-style:none;padding-left:6px}
+  .back li b{color:#c8102e}
+  .back .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px}
+  .back .stamp{width:92px;height:92px;border:2px solid #c8102e;border-radius:50%;color:#c8102e;
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;transform:rotate(-15deg);opacity:.85}
+  .back .no{font-size:15px;color:#c8102e;font-weight:bold}
+  .label{display:block;text-align:center;margin-top:10px;font-size:14px;color:#555}
+</style>
+</head>
+<body>
+<!-- 正面 -->
+<div>
+  <div class="card front">
+    <div class="left">
+      <div class="logo">薛</div>
+      <h1>薛记炒货提货卡</h1>
+      <div class="slogan"> 薛记炒货·  <b>38℃</b>锁鲜<br>全年品质如一</div>
+      <div class="qr">
+        <div></div><span>微信公众号</span>
+        <div></div><span>小程序商城</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="seal">
+        <div class="amt">100</div>
+        <div class="unit">元</div>
+      </div>
+    </div>
+    <div class="no">№001</div>
+  </div>
+  <span class="label">正面</span>
+</div>
+<!-- 背面 -->
+<div>
+  <div class="card back">
+    <h2>薛记炒货枫蓝国际店提货单</h2>
+    <div class="shop">沟通方式：13601122789</div>
+    <ul>
+      <li>1、此卡券只限<b>枫蓝国际店</b>使用（其他店面无效）</li>
+      <li>2、面值 <b>100 元</b>：一次性消费，不设找赎</li>
+      <li>3、解释权归薛记炒货枫蓝国际店为准</li>
+      <li>4、有效期 2026年9月** 至 2026年****</li>
+      <li>5、盖有人名章有效</li>
+    </ul>
+    <div class="row">
+      <span style="font-size:15px;font-weight:bold">盖章有效</span>
+      <div class="stamp">人名章</div>
+      <span class="no">№001</span>
+    </div>
+  </div>
+  <span class="label">背面</span>
+</div>
+</body>
+</html>
+原型说明
+1. 正面（红色主视觉）：薛记白底 logo + 「香甜糯 · 零下38℃锁鲜」卖点 + 两个二维码位，右侧金色虚线圆形印章样式突出「100元」，右下角卡号 №001。
+2. 背面（白底）：提货说明 5 条完整保留，金额统一为「100 元」（解决了原来「圆/元」混用的问题），右下角人名章示意 + 卡号。
+3. 二维码、人名章位置目前是占位，实印时替换为真实二维码图片和骑缝章即可。
+如果您想调整配色（比如正面印成栗子照片背景）、改成竖版卡、或者金额写成「壹佰圆整」的正式版，告诉我，我马上改。
