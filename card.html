@@ -6,32 +6,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>薛记炒货提货卡 - 原型</title>
 <style>
-  body{background:#f0f0f0;font-family:"Microsoft YaHei",sans-serif;display:flex;gap:40px;justify-content:center;padding:50px 10px;flex-wrap:wrap}
-  .card{width:540px;height:320px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);position:relative;overflow:hidden}
+  *{box-sizing:border-box}
+  body{background:#f0f0f0;font-family:"Microsoft YaHei",sans-serif;display:flex;gap:40px;justify-content:center;padding:30px 8px;flex-wrap:wrap}
+  .card{width:min(540px,94vw);aspect-ratio:540/320;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);position:relative;overflow:hidden}
   /* ---------- 正面 ---------- */
   .front{background:#c8102e;color:#fff;display:flex}
-  .front .left{flex:1.2;padding:34px 10px 20px 30px}
-  .front .logo{width:64px;height:88px;background:#fff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-    display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:bold;color:#c8102e;margin-bottom:14px}
-  .front h1{font-size:30px;margin:6px 0 10px;letter-spacing:2px}
-  .front .shop{font-size:16px;letter-spacing:1px;border-top:1px solid rgba(255,255,255,.5);
-    padding-top:10px;display:inline-block}
+  .front .left{flex:1.2;padding:6% 2% 4% 5%}
+  .front .logo{width:12%;aspect-ratio:64/88;background:#fff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+    display:flex;align-items:center;justify-content:center;font-size:min(34px,6vw);font-weight:bold;color:#c8102e;margin-bottom:4%}
+  .front h1{font-size:min(30px,5.5vw);margin:3% 0;letter-spacing:2px}
+  .front .shop{font-size:min(16px,3vw);letter-spacing:1px;border-top:1px solid rgba(255,255,255,.5);
+    padding-top:3%;display:inline-block}
   .front .right{flex:1;background:rgba(255,255,255,.12);display:flex;flex-direction:column;justify-content:center;align-items:center}
-  .front .seal{width:130px;height:130px;border:3px dashed #ffe000;border-radius:50%;display:flex;flex-direction:column;
+  .front .seal{width:46%;aspect-ratio:1;border:3px dashed #ffe000;border-radius:50%;display:flex;flex-direction:column;
     align-items:center;justify-content:center;transform:rotate(-12deg)}
-  .front .seal .amt{font-size:50px;font-weight:bold;color:#ffe000;line-height:1}
-  .front .seal .unit{font-size:18px;color:#fff;margin-top:4px}
-  .front .no{position:absolute;bottom:10px;right:14px;font-size:12px;opacity:.85}
+  .front .seal .amt{font-size:min(50px,9vw);font-weight:bold;color:#ffe000;line-height:1}
+  .front .seal .unit{font-size:min(18px,3.5vw);color:#fff;margin-top:4px}
+  .front .no{position:absolute;bottom:3%;right:3%;font-size:min(12px,2.5vw);opacity:.85}
   /* ---------- 背面（红底白字） ---------- */
-  .back{background:#c8102e;color:#fff;padding:26px 34px}
-  .back h2{font-size:20px;border-left:6px solid #ffe000;padding-left:10px;margin:0 0 14px;letter-spacing:1px}
-  .back .shop{font-size:13px;opacity:.95;margin-bottom:12px}
-  .back li{font-size:13px;line-height:1.9;list-style:none;padding-left:6px}
+  .back{background:#c8102e;color:#fff;padding:5% 6%}
+  .back h2{font-size:min(20px,4.2vw);border-left:5px solid #ffe000;padding-left:8px;margin:0 0 4%;letter-spacing:1px}
+  .back .shop{font-size:min(13px,2.8vw);opacity:.95;margin-bottom:3%;color:#fff}
+  .back li{font-size:min(13px,2.8vw);line-height:1.9;list-style:none;padding-left:4px}
   .back li b{color:#ffe000}
-  .back .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px}
-  .back .stamp{width:92px;height:92px;border:2px solid #fff;border-radius:50%;color:#fff;
-    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;transform:rotate(-15deg);opacity:.9}
-  .back .no{font-size:15px;color:#ffe000;font-weight:bold}
+  .back .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:3%}
+  .back .stamp{width:20%;aspect-ratio:1;border:2px solid #fff;border-radius:50%;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:min(15px,3vw);font-weight:bold;transform:rotate(-15deg);opacity:.9}
+  .back .no{font-size:min(15px,3.2vw);color:#ffe000;font-weight:bold}
+  .back .stamp-box{display:flex;justify-content:center;flex:1}
   .label{display:block;text-align:center;margin-top:10px;font-size:14px;color:#555}
 </style>
 </head>
@@ -50,7 +52,7 @@
         <div class="unit">元</div>
       </div>
     </div>
-    <div class="no">№001</div>
+    <div class="no">№001</div>h
   </div>
   <span class="label">正面</span>
 </div>
@@ -58,7 +60,7 @@
 <div>
   <div class="card back">
     <h2>薛记炒货枫蓝国际店提货单</h2>
-    <div class="shop">沟通方式：13601122789</div>
+    <div class="shop">沟通方式：13782273586</div>
     <ul>
       <li>1、此卡券只限<b>枫蓝国际店</b>使用（其他店面无效）</li>
       <li>2、面值 <b>100 元</b>：一次性消费，不设找零 </li>
@@ -67,8 +69,8 @@
       <li>5、盖有人名章有效</li>
     </ul>
     <div class="row">
-      <span style="font-size:15px;font-weight:bold">盖章有效</span>
-      <div class="stamp">人名章</div>
+      <span style="font-size:min(15px,3.2vw);font-weight:bold">盖章有效</span>
+      <div class="stamp-box"><div class="stamp">人名章</div></div>
       <span class="no">№001</span>
     </div>
   </div>
